@@ -14,6 +14,11 @@
       class="image-viewer"
       v-show="imageViewerVisible"
     >
+      <span class="icon-close" @click="setImageViewerVisible(false)">
+        <svg :viewBox="CloseIcon.viewBox">
+          <use :xlink:href="CloseIcon.url"></use>
+        </svg>
+      </span>
       <div
         ref="imageViewer"
       >
@@ -80,13 +85,13 @@
   import EmojiPicker from 'muya/lib/ui/emojiPicker'
   import ImagePathPicker from 'muya/lib/ui/imagePicker'
   import FormatPicker from 'muya/lib/ui/formatPicker'
-  // import { URL_REG } from 'muya/lib/config'
   import bus from '../../bus'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
   import Printer from '@/services/printService'
   import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
   import { addThemeStyle } from '@/util/theme'
+  import CloseIcon from '@/assets/icons/close.svg'
   import 'view-image/lib/imgViewer.css'
 
   const STANDAR_Y = 320
@@ -129,6 +134,7 @@
     },
     data () {
       this.defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
+      this.CloseIcon = CloseIcon
       return {
         selectionChange: null,
         editor: null,
@@ -185,11 +191,6 @@
     },
     created () {
       this.$nextTick(() => {
-        this.imageViewer = new ViewImage(this.$refs.imageViewer, {
-          url: 'http://img2.imgtn.bdimg.com/it/u=4135477902,3355939884&fm=26&gp=0.jpg',
-          snapView: true
-        })
-        console.log(this.imageViewer)
         this.printer = new Printer()
         const ele = this.$refs.editor
         const {
@@ -278,8 +279,17 @@
         this.editor.on('format-click', ({ event, formatType, data }) => {
           if (formatType === 'link' && event.metaKey === true) {
             this.$store.dispatch('FORMAT_LINK_CLICK', { data, dirname: window.DIRNAME })
-          } else if (formatType === 'image') {
-            // todo@jocs browse image full screen.
+          } else if (formatType === 'image' && event.metaKey === true) {
+            if (this.imageViewer) {
+              this.imageViewer.destroy()
+            }
+
+            this.imageViewer = new ViewImage(this.$refs.imageViewer, {
+              url: data,
+              snapView: true
+            })
+
+            this.setImageViewerVisible(true)
           }
         })
 
@@ -538,7 +548,25 @@
     right: 0;
     left: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, .2);
+    background: rgba(0, 0, 0, .8);
+    & .icon-close {
+      z-index: 1000;
+      width: 30px;
+      height: 30px;
+      position: absolute;
+      top: 50px;
+      left: 50px;
+      display: block;
+      & svg {
+        fill: #efefef;
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  .iv-container {
+    width: 100%;
+    height: 100%;
   }
   .iv-snap-view {
     opacity: 1;
