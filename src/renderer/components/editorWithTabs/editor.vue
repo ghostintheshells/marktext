@@ -70,6 +70,7 @@
   import EmojiPicker from 'muya/lib/ui/emojiPicker'
   import ImagePathPicker from 'muya/lib/ui/imagePicker'
   import FormatPicker from 'muya/lib/ui/formatPicker'
+  // import { URL_REG } from 'muya/lib/config'
   import bus from '../../bus'
   import { animatedScrollTo } from '../../util'
   import { showContextMenu } from '../../contextMenu/editor'
@@ -255,6 +256,14 @@
 
         this.editor.on('change', changes => {
           this.$store.dispatch('LISTEN_FOR_CONTENT_CHANGE', changes)
+        })
+
+        this.editor.on('format-click', ({ event, formatType, data }) => {
+          if (formatType === 'link' && event.metaKey === true) {
+            this.$store.dispatch('FORMAT_LINK_CLICK', { data, dirname: window.DIRNAME })
+          } else if (formatType === 'image') {
+            // todo@jocs browse image full screen.
+          }
         })
 
         this.editor.on('selectionChange', changes => {
