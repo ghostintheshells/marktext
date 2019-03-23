@@ -310,9 +310,16 @@
         this.editor.on('contextmenu', (event, selectionChanges) => {
           showContextMenu(event, selectionChanges)
         })
+        document.addEventListener('keyup', this.keyup)
       })
     },
     methods: {
+      keyup (event) {
+        if (event.key === 'Escape') {
+          this.setImageViewerVisible(false)
+        }
+      },
+
       handleImagePath (files) {
         const { editor } = this
         editor && editor.showAutoImagePath(files)
@@ -507,6 +514,8 @@
       bus.$off('scroll-to-header', this.scrollToHeader)
       bus.$off('copy-block', this.handleCopyBlock)
       bus.$off('print', this.handlePrint)
+
+      document.removeEventListener('keyup', this.keyup)
 
       this.editor.destroy()
       this.editor = null
